@@ -26,6 +26,8 @@ V.init = function(){
     V.loadmap();
     V.lycee();
     isValidLatLng();
+    V.existingMarkers = new Set();
+    V.addMarkerIfNotExists();
 
 }
 
@@ -68,6 +70,30 @@ function isValidLatLng(lat, lng) {
     return typeof lat === "number" && !isNaN(lat) && lat >= -90 && lat <= 90 &&
            typeof lng === "number" && !isNaN(lng) && lng >= -180 && lng <= 180;
 }
+V.existingMarkers = new Set();
 
+V.addMarkerIfNotExists = function(lat, lng) {
+    const key = `${lat},${lng}`;
+    if (!V.existingMarkers.has(key)) {
+        L.marker([lat, lng]).addTo(V.map);
+        V.existingMarkers.add(key);
+    }
+};
+
+V.lycee = function(){
+    Lycees.getAll().forEach(lycee => {
+        let latitude = parseFloat(lycee.latitude);
+        let longitude = parseFloat(lycee.longitude);
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return; // Skip this lycee if coordinates are invalid
+        }
+
+        if (lycee.latitude == "" && lycee.longitude == "") {
+            console.error("Coordonnées invalides :", lycee);
+        } else if (isValidLatLng(latitude, longitude)) {
+            V.addMarkerIfNotExists(latitude, longitude);
+        }
+    });
+};
 
 C.init();
