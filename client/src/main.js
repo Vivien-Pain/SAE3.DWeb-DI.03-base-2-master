@@ -68,14 +68,14 @@ V.lycée = function() {
             }
             lycee.candidats.push(cand);
 
-            // Ajouter ou mettre à jour le marqueur dans le cluster
+            
             if (lycee.latitude && lycee.longitude && !markers[lycee.numero_uai]) {
                 let marker = L.marker([lycee.latitude, lycee.longitude])
                     .bindPopup(`<b>${lycee.appellation_officielle}</b><br>Nombre de candidatures: ${lycee.candidats.length}`);
-                markersCluster.addLayer(marker); // Ajouter au cluster
+                markersCluster.addLayer(marker); 
                 markers[lycee.numero_uai] = marker;
             } else if (markers[lycee.numero_uai]) {
-                // Mettre à jour le contenu du popup si le marqueur existe déjà
+               
                 markers[lycee.numero_uai].getPopup().setContent(
                     `<b>${lycee.appellation_officielle}</b><br>Nombre de candidatures: ${lycee.candidats.length}`
                 );
@@ -83,7 +83,7 @@ V.lycée = function() {
         }
     }
 
-    // Ajouter le cluster à la carte
+    
     V.map.addLayer(markersCluster);
 };
 
