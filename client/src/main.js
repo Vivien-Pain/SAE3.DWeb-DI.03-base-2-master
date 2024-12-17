@@ -26,8 +26,6 @@ V.init = function(){
     V.loadmap();
     V.map.addLayer(V.villeLayer);
     V.lycée();
-   
-  
 }
 
 V.renderHeader = function(){
@@ -43,13 +41,14 @@ V.loadmap = function() {
     }).addTo(V.map);
 }
 
-
 V.lycée = function() {
     let candidats = Candidats.getAll();
     let lycees = Lycees.getAll();
 
-    // Créer une instance de MarkerClusterGroup
-    let markersCluster = L.markerClusterGroup();
+    // Créer une instance de MarkerClusterGroup avec l'option zoomToBoundsOnClick désactivée
+    let markersCluster = L.markerClusterGroup({
+        zoomToBoundsOnClick: false
+    });
 
     let markers = {};
     for (let cand of candidats) {
@@ -68,14 +67,12 @@ V.lycée = function() {
             }
             lycee.candidats.push(cand);
 
-            
             if (lycee.latitude && lycee.longitude && !markers[lycee.numero_uai]) {
                 let marker = L.marker([lycee.latitude, lycee.longitude])
                     .bindPopup(`<b>${lycee.appellation_officielle}</b><br>Nombre de candidatures: ${lycee.candidats.length}`);
-                markersCluster.addLayer(marker); 
+                markersCluster.addLayer(marker);
                 markers[lycee.numero_uai] = marker;
             } else if (markers[lycee.numero_uai]) {
-               
                 markers[lycee.numero_uai].getPopup().setContent(
                     `<b>${lycee.appellation_officielle}</b><br>Nombre de candidatures: ${lycee.candidats.length}`
                 );
@@ -83,9 +80,19 @@ V.lycée = function() {
         }
     }
 
-    
+    markersCluster.on('clusterclick', function (a) {
+        let totalCandidatures = 0;
+        a.layer.getAllChildMarkers().forEach(marker => {
+            let popupContent = marker.getPopup().getContent();
+            let match = popupContent.match(/Nombre de candidatures: (\d+)/);
+            if (match) {
+                totalCandidatures += parseInt(match[1]);
+            }
+        });
+        a.layer.bindPopup(`Dans cette zone, il y a ${totalCandidatures} candidatures.`).openPopup();
+    });
+
     V.map.addLayer(markersCluster);
 };
-
 
 C.init();
