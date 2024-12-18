@@ -8,9 +8,9 @@ let C = {};
 
 C.init = async function() {
     V.init();
-    console.log(Candidats.getAll());
-    console.log(Lycees.getAll());
-    console.log(Postal.getAll());
+  
+    
+    
 };
 
 let V = {
