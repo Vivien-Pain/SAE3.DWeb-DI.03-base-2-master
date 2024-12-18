@@ -1,7 +1,7 @@
 import { HeaderView } from "./ui/header/index.js";
 import { Candidats } from "./data/data-candidats.js";
 import { Lycees } from "./data/data-lycees.js";
-import './index.css';
+import { Postal } from "./data/data-postal.js";
 import { MapComponent } from './ui/map/index.js';
 
 let C = {};
@@ -10,6 +10,7 @@ C.init = async function() {
     V.init();
     console.log(Candidats.getAll());
     console.log(Lycees.getAll());
+    console.log(Postal.getAll());
 };
 
 let V = {
@@ -20,7 +21,10 @@ V.init = function() {
     V.renderHeader();
     let candidats = Candidats.getAll();
     let lycees = Lycees.getAll();
-    MapComponent.init(candidats, lycees); // Initialisation de la carte avec les données
+    let postal = Postal.getAll();
+    
+    // Initialisation de la carte avec les données
+    MapComponent.init(candidats, lycees, postal);
 };
 
 V.renderHeader = function() {
