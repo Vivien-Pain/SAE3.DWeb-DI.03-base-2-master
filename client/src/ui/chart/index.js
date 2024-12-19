@@ -48,40 +48,36 @@ let ChartComponent = {
         // Créer les données pour le graphique
         let chartData = [];
         for (let dep in data) {
-            chartData.push([
-                dep,
-                data[dep].postbac,
-                data[dep].general,
-                data[dep].sti2d,
-                data[dep].autres
-            ]);
+            chartData.push({
+                x: dep,
+                postbac: data[dep].postbac,
+                general: data[dep].general,
+                sti2d: data[dep].sti2d,
+                autres: data[dep].autres
+            });
         }
-    
+
         // Initialisation du graphique
         this.chart = anychart.bar();
-    
-        // Ajouter des séries manuellement
-        let postbacSeries = this.chart.bar(chartData.map(row => ({ x: row[0], value: row[1] })));
-        let generalSeries = this.chart.bar(chartData.map(row => ({ x: row[0], value: row[2] })));
-        let sti2dSeries = this.chart.bar(chartData.map(row => ({ x: row[0], value: row[3] })));
-        let autresSeries = this.chart.bar(chartData.map(row => ({ x: row[0], value: row[4] })));
-    
-        // Configurer les séries
-        postbacSeries.name("Post-bac");
-        generalSeries.name("Générale");
-        sti2dSeries.name("STI2D");
-        autresSeries.name("Autres");
-    
+
+        // Ajouter les données au graphique
+        this.chart.data(chartData);
+
+        // Configurer les séries empilées
+        this.chart.yScale().stackMode('value');
+        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.postbac }))).name("Post-bac");
+        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.general }))).name("Générale");
+        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.sti2d }))).name("STI2D");
+        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.autres }))).name("Autres");
+
         // Activer les étiquettes pour chaque série
-        postbacSeries.labels(true);
-        generalSeries.labels(true);
-        sti2dSeries.labels(true);
-        autresSeries.labels(true);
-    
+        this.chart.labels(true);
+
         // Personnalisation
         this.chart.title("Candidatures par Département");
         this.chart.container("chart-container");
         this.chart.draw();
     }
 };
+
 export { ChartComponent };
