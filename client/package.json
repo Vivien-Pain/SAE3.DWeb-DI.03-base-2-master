@@ -15,6 +15,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "anychart": "^8.13.0",
     "idb": "^8.0.0",
     "leaflet": "^1.9.4"
   }
