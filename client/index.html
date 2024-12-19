@@ -5,15 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css">
     <link rel="shortcut icon" href="./src/lib/favicon_mmi.png" type="image/x-icon">
+    
     <title>SAE303 Split 2 Pain Vivien</title>
 </head>
 <body class="bg-gray-100">
     <section id="header"></section>
+    <button id="show-neo-bachelier">Afficher Neo Bachelier</button>
+    <button id="show-post-bac">Afficher Post Bac</button>
+    <button id="show-all">Afficher Tous</button>
     <div id="map"></div>
+    <div id="stacked-bar-chart-container" class="chart"></div>
     <script type="module" src="src/main.js"></script>
+    
      <style>
         #map { height: 620px;
-        width: 1500px; }
+        width: 70%; }
+.chart {
+    width: 30%;  /* ⅓ de la largeur */
+    height: 100%;
+    padding: 10px;
+    background-color: #f5f5f5;
+}
      </style>
 </body>
 </html>

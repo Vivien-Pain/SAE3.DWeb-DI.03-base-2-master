@@ -8,7 +8,6 @@ let C = {};
 
 C.init = async function() {
     V.init();
-  
     
     
 };
