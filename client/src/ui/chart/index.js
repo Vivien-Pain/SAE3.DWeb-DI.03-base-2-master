@@ -2,26 +2,47 @@ import anychart from 'anychart/dist/js/anychart-bundle.min.js';
 
 let ChartComponent = {
     chart: null,
+    threshold: 3, // Valeur initiale pour le seuil
 
     init(candidats) {
         let data = this.prepareData(candidats);
         this.renderChart(data);
+
+        // Listener pour le slider
+        let slider = document.getElementById("threshold-slider");
+        slider.addEventListener("input", (event) => {
+            this.threshold = parseInt(event.target.value);
+            document.getElementById("threshold-value").textContent = this.threshold;
+            this.renderChart(data); // Re-render le graphique
+        });
     },
 
+    // Fonction pour ajuster le code postal (ex : 45100 → 45000)
+    adjustPostalCode(cp) {
+        let departmentCode = cp.slice(0, 2);
+        let cityCode = cp.slice(2, 5);
+        if (parseInt(cityCode) > 100) {
+            return departmentCode + '00'; // Regrouper par département
+        } else {
+            return cp.slice(0, 5); // Récupérer uniquement le code du département
+        }
+    },
+
+    // Préparation des données pour le graphique
     prepareData(candidats) {
         let departments = {};
 
         candidats.forEach((cand) => {
-            // Vérifie si `Scolarite` existe et contient des données valides
             if (cand.Scolarite && cand.Scolarite.length > 0) {
-                let cp = cand.Scolarite[0]?.CommuneEtablissementOrigineCodePostal; // Code postal
+                let cp = cand.Scolarite[0]?.CommuneEtablissementOrigineCodePostal;
                 if (cp) {
-                    let dep = cp.slice(0, 2); // Département
+                    let dep = this.adjustPostalCode(cp);
+
                     if (!departments[dep]) {
-                        departments[dep] = { postbac: 0, general: 0, sti2d: 0, autres: 0 };
+                        departments[dep] = { general: 0, sti2d: 0, autres: 0, total: 0 };
                     }
 
-                    // Catégorisation des candidatures
+                    // Catégorisation des candidatures en fonction du Bac
                     switch (cand.Baccalaureat?.SerieDiplomeCode) {
                         case 'Générale':
                             departments[dep].general++;
@@ -33,51 +54,83 @@ let ChartComponent = {
                             departments[dep].autres++;
                             break;
                     }
-                } else {
-                    console.warn('Code postal manquant pour le candidat :', cand);
+
+                    departments[dep].total++;
                 }
-            } else {
-                console.warn('Scolarité manquante pour le candidat :', cand);
             }
         });
 
         return departments;
     },
 
+    // Fonction pour afficher le graphique
     renderChart(data) {
-        // Créer les données pour le graphique
-        let chartData = [];
-        for (let dep in data) {
-            chartData.push({
-                x: dep,
-                postbac: data[dep].postbac,
-                general: data[dep].general,
-                sti2d: data[dep].sti2d,
-                autres: data[dep].autres
+        // Trier les départements par nombre total de candidatures
+        let chartData = Object.keys(data)
+            .map(dep => ({
+                x: dep,  // Le nom du département
+                general: data[dep].general, // Candidatures Générale
+                sti2d: data[dep].sti2d, // Candidatures STI2D
+                autres: data[dep].autres, // Autres candidatures
+                total: data[dep].total // Total des candidatures
+            }))
+            .sort((a, b) => b.total - a.total); // Trier par total décroissant
+
+        // Regrouper les départements en "Autres départements" si leur total est inférieur au seuil
+        let groupedData = { general: 0, sti2d: 0, autres: 0, total: 0 };
+        let filteredData = chartData.filter(row => {
+            if (row.total > this.threshold) return true;
+
+            groupedData.general += row.general;
+            groupedData.sti2d += row.sti2d;
+            groupedData.autres += row.autres;
+            groupedData.total += row.total;
+
+            return false;
+        });
+
+        // Ajouter les "Autres départements" si nécessaire
+        if (groupedData.total > 0) {
+            filteredData.push({
+                x: "Autres départements",
+                general: groupedData.general,
+                sti2d: groupedData.sti2d,
+                autres: groupedData.autres,
+                total: groupedData.total
             });
         }
 
-        // Initialisation du graphique
+        // Si le graphique existe déjà, le vider
+        if (this.chart) {
+            this.chart.dispose();
+        }
+
+        // Créer un graphique stacked bar
         this.chart = anychart.bar();
 
-        // Ajouter les données au graphique
-        this.chart.data(chartData);
+        // Préparer les séries pour les données empilées
+        let generalSeries = this.chart.bar(filteredData.map(row => ({ x: row.x, value: row.general })));
+        let sti2dSeries = this.chart.bar(filteredData.map(row => ({ x: row.x, value: row.sti2d })));
+        let autresSeries = this.chart.bar(filteredData.map(row => ({ x: row.x, value: row.autres })));
+        let totalSeries = this.chart.bar(filteredData.map(row => ({ x: row.x, value: row.total }))); // Série "Total"
 
-        // Configurer les séries empilées
-        this.chart.yScale().stackMode('value');
-        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.postbac }))).name("Post-bac");
-        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.general }))).name("Générale");
-        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.sti2d }))).name("STI2D");
-        this.chart.bar(chartData.map(row => ({ x: row.x, value: row.autres }))).name("Autres");
+        // Ajouter les séries au graphique
+        generalSeries.name("Générale");
+        sti2dSeries.name("STI2D");
+        autresSeries.name("Autres");
+        totalSeries.name("Total"); // Ajouter le total comme série
 
-        // Activer les étiquettes pour chaque série
-        this.chart.labels(true);
+        // Activer les labels pour chaque série
+        generalSeries.labels(true);
+        sti2dSeries.labels(true);
+        autresSeries.labels(true);
+        totalSeries.labels(true); // Activer les labels pour le total
 
-        // Personnalisation
+        // Configuration du graphique
         this.chart.title("Candidatures par Département");
         this.chart.container("chart-container");
         this.chart.draw();
-    }
+    },
 };
 
 export { ChartComponent };
