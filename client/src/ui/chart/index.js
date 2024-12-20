@@ -1,5 +1,6 @@
 import anychart from 'anychart/dist/js/anychart-bundle.min.js';
 
+
 let ChartComponent = {
     chart: null,
     threshold: 3, // Valeur initiale pour le seuil

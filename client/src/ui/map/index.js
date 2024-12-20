@@ -12,8 +12,6 @@ let MapComponent = {
     postbacCluster: L.markerClusterGroup({ zoomToBoundsOnClick: false }),
 
     init(candidats, lycees, postal) {
-        candidats.shift();
-
         lycees.sort((a, b) => a.numero_uai.localeCompare(b.numero_uai));
 
         this.loadMap();
@@ -21,9 +19,11 @@ let MapComponent = {
         this.map.addLayer(this.villeLayer);
         this.markersCluster.clearLayers();
         this.postbacCluster.clearLayers();
-        this.addLycees(candidats, lycees);
-        this.addPostbacMarkers(candidats, lycees, postal);
-        this.addPostbacCluster();
+
+        this.addLycees(candidats, lycees);  // Ajouter les lycées à la carte
+        this.addPostbacMarkers(candidats, lycees, postal);  // Ajouter les marqueurs postbac
+        this.addPostbacCluster();  // Gérer le cluster des marqueurs postbac
+
         this.map.addLayer(this.markersCluster);
     },
 
@@ -35,6 +35,7 @@ let MapComponent = {
         }).addTo(this.map);
     },
 
+    // Ajout des lycées à la carte
     addLycees(candidats, lycees) {
         let markers = {};
 
@@ -91,10 +92,9 @@ let MapComponent = {
                 STI2D: ${formations.sti2d}<br>
                 Autre: ${formations.autre}`).openPopup();
         });
-
-        this.map.addLayer(this.markersCluster);
     },
 
+    // Créer le contenu du popup pour chaque lycée
     createPopupContent(lycee) {
         let general = 0, sti2d = 0, autre = 0;
         for (let cand of lycee.candidats) {
@@ -117,6 +117,7 @@ let MapComponent = {
             Autre: ${autre}`;
     },
 
+    // Ajouter des marqueurs pour les zones postbac
     addPostbacMarkers(candidats, lycees, postal) {
         let postbacIndex = {};
 
@@ -165,6 +166,7 @@ let MapComponent = {
         }
     },
 
+    // Ajouter des clusters pour les zones postbac
     addPostbacCluster() {
         this.postbacCluster.on('clusterclick', function (a) {
             let totalCandidatures = 0;
@@ -190,8 +192,6 @@ let MapComponent = {
                 STI2D: ${formations.sti2d}<br>
                 Autre: ${formations.autre}`).openPopup();
         });
-
-        this.map.addLayer(this.postbacCluster);
     }
 };
 
