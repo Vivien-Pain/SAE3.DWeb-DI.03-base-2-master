@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="/assets/favicon_mmi-Br-Y4VpW.png" type="image/x-icon">
+    <title>SAE303 Split 2 Pain Vivien</title>
+    <script type="module" crossorigin src="./assets/index-B9thyszh.js" def></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-C0hgnEn9.css">
+</head>
+<body class="bg-gray-100">
+    <section id="header"></section>
+
+    <!-- Boutons pour les différents affichages -->
+    <div style="margin: 20px;">
+        <button id="show-neo-bachelier">Afficher Neo Bachelier</button>
+        <button id="show-post-bac">Afficher Post Bac</button>
+        <button id="show-all">Afficher Tous</button>
+    </div>
+
+    <!-- Slider pour ajuster le seuil -->
+    <div id="slider-container" style="margin: 20px;">
+        <label for="threshold-slider" style="font-weight: bold;">Seuil de regroupement: </label>
+        <input 
+            type="range" 
+            id="threshold-slider" 
+            min="1" 
+            max="30" 
+            value="3" 
+            style="width: 200px; vertical-align: middle;">
+        <span id="threshold-value" style="font-size: 16px; font-weight: bold;">3</span>
+    </div>
+
+    <!-- Conteneur principal pour la carte et le graphique -->
+    <div id="container">
+        <div id="map"></div>
+        <div id="chart-container" class="chart"></div>
+    </div>
+
+   
+    
+
+    <!-- Styles supplémentaires -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            display: flex;
+            width: 100%;
+        }
+        #map {
+            height: 620px;
+            width: 70%;
+            border-right: 1px solid #ccc;
+        }
+        .chart {
+            width: 30%;
+            height: 620px;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        #slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #threshold-slider {
+            width: 200px;
+            cursor: pointer;
+        }
+    </style>
+
+</body>
+</html>
